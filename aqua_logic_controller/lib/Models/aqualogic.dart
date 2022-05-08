@@ -1,4 +1,7 @@
+import 'display.dart';
+
 class AquaLogic {
+  Display? display;
   int? poolStates;
   int? flashingStates;
   bool? isMetric;
@@ -18,7 +21,8 @@ class AquaLogic {
   bool? heaterAutoMode;
 
   AquaLogic(
-      {this.poolStates,
+      {this.display,
+      this.poolStates,
       this.flashingStates,
       this.isMetric,
       this.airTemp,
@@ -38,46 +42,49 @@ class AquaLogic {
 
   factory AquaLogic.fromJson(Map<String, dynamic> json) {
     return AquaLogic(
-      poolStates : json['PoolStates'],
-      flashingStates : json['FlashingStates'],
-      isMetric : json['IsMetric'],
-      airTemp : json['AirTemp'],
-      spaTemp : json['SpaTemp'],
-      poolTemp : json['PoolTemp'],
-      poolChlorinatorPercent : json['PoolChlorinatorPercent'],
-      spaChlorinatorPercent : json['SpaChlorinatorPercent'],
-      saltLevel : json['SaltLevel'],
-      status : json['Status'],
-      isHeaterEnabled : json['IsHeaterEnabled'],
-      isSuperChlorinate : json['IsSuperChlorinate'],
-      waterfall : json['Waterfall'],
-      pumpSpeed : json['PumpSpeed'],
-      pumpPower : json['PumpPower'],
-      multiSpeedPump : json['MultiSpeedPump'],
-      heaterAutoMode : json['HeaterAutoMode'],
+      display: json['display'],
+      poolStates : json['poolStates'],
+      flashingStates : json['flashingStates'],
+      isMetric : json['isMetric'],
+      airTemp : json['airTemp'],
+      spaTemp : json['spaTemp'],
+      poolTemp : json['poolTemp'],
+      poolChlorinatorPercent : json['poolChlorinatorPercent'],
+      spaChlorinatorPercent : json['spaChlorinatorPercent'],
+      saltLevel : json['saltLevel'],
+      status : json['status'],
+      isHeaterEnabled : json['isHeaterEnabled'],
+      isSuperChlorinate : json['isSuperChlorinate'],
+      waterfall : json['waterfall'],
+      pumpSpeed : json['pumpSpeed'],
+      pumpPower : json['pumpPower'],
+      multiSpeedPump : json['multiSpeedPump'],
+      heaterAutoMode : json['heaterAutoMode'],
     );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
 
-    data['PoolStates'] = this.poolStates;
-    data['FlashingStates'] = this.flashingStates;
-    data['IsMetric'] = this.isMetric;
-    data['AirTemp'] = this.airTemp;
-    data['SpaTemp'] = this.spaTemp;
-    data['PoolTemp'] = this.poolTemp;
-    data['PoolChlorinatorPercent'] = this.poolChlorinatorPercent;
-    data['SpaChlorinatorPercent'] = this.spaChlorinatorPercent;
-    data['SaltLevel'] = this.saltLevel;
-    data['Status'] = this.status;
-    data['IsHeaterEnabled'] = this.isHeaterEnabled;
-    data['IsSuperChlorinate'] = this.isSuperChlorinate;
-    data['Waterfall'] = this.waterfall;
-    data['PumpSpeed'] = this.pumpSpeed;
-    data['PumpPower'] = this.pumpPower;
-    data['MultiSpeedPump'] = this.multiSpeedPump;
-    data['HeaterAutoMode'] = this.heaterAutoMode;
+    data['display'] = this.display;
+    data['poolStates'] = this.poolStates;
+    data['flashingStates'] = this.flashingStates;
+    data['isMetric'] = this.isMetric;
+    data['airTemp'] = this.airTemp;
+    data['spaTemp'] = this.spaTemp;
+    data['poolTemp'] = this.poolTemp;
+    data['poolChlorinatorPercent'] = this.poolChlorinatorPercent;
+    data['spaChlorinatorPercent'] = this.spaChlorinatorPercent;
+    data['saltLevel'] = this.saltLevel;
+    data['status'] = this.status;
+    data['isHeaterEnabled'] = this.isHeaterEnabled;
+    data['isSuperChlorinate'] = this.isSuperChlorinate;
+    data['waterfall'] = this.waterfall;
+    data['pumpSpeed'] = this.pumpSpeed;
+    data['pumpPower'] = this.pumpPower;
+    data['multiSpeedPump'] = this.multiSpeedPump;
+    data['heaterAutoMode'] = this.heaterAutoMode;
+
     return data;
   }
 }

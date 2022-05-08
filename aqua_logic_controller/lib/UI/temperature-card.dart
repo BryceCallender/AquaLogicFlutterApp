@@ -14,8 +14,8 @@ class _TemperatureCardState extends State<TemperatureCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 125,
-      height: 125,
+      width: 120,
+      height: 120,
       child: Card(
         child: Container(
           child: Column(
