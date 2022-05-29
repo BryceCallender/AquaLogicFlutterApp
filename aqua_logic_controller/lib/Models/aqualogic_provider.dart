@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
+import '../helpers/api-constants.dart';
+
 class AquaLogicProvider extends ChangeNotifier {
   AquaLogic _aquaLogic = AquaLogic();
 
@@ -13,8 +15,8 @@ class AquaLogicProvider extends ChangeNotifier {
 
   AquaLogic get aquaLogic => _aquaLogic;
 
-  Future subscribe(String serverUrl) async {
-    _serverUrl = serverUrl + "/aqualogichub";
+  Future<void> subscribe() async {
+    _serverUrl = ApiConstants.aquaHubUrl + ApiConstants.aqualogicHubEndpoint;
     print(_serverUrl);
 
     final httpConnectionOptions = new HttpConnectionOptions(
@@ -28,15 +30,26 @@ class AquaLogicProvider extends ChangeNotifier {
 
     _hubConnection.onclose(({error}) => print("Connection Closed"));
     _hubConnection.on("UpdateDisplay", _handleUpdateDisplay);
+    _hubConnection.onreconnecting(({error}) => print("Reconnecting..."));
+    _hubConnection.onreconnected(({connectionId}) => print("Reconnected."));
 
-    await _hubConnection.start();
-    print('connected');
+    if (_hubConnection.state != HubConnectionState.Connected) {
+      var connected = false;
+      while (!connected) {
+        try {
+          await _hubConnection.start();
+          connected = true;
+        } catch(e) {
+          print(e);
+        }
+      }
+      print('connected');
+    }
   }
 
   void _handleUpdateDisplay(List<Object>? args) {
     if (args != null) {
       _aquaLogic = AquaLogic.fromJson(args[0] as Map<String, dynamic>);
-
       notifyListeners();
     }
   }

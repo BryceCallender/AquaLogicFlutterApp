@@ -1,5 +1,7 @@
 import 'package:aqua_logic_controller/Models/states.dart';
 import 'package:aqua_logic_controller/UI/spinning-icon.dart';
+import 'package:aqua_logic_controller/helpers/ApiBaseHelper.dart';
+import 'package:aqua_logic_controller/helpers/api-constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math';
@@ -31,22 +33,35 @@ class _PoolCardState extends State<PoolCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 120,
-      width: 120,
       child: Card(
-        color: widget.isEnabled ? Colors.blue : Theme.of(context).cardColor,
+        color:
+            widget.isEnabled ? Color(0xFF2845f9) : Theme.of(context).cardColor,
         child: InkWell(
           onTap: () => sendState(),
           child: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(widget.icon, size: 64),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(widget.display, style: TextStyle(fontSize: 16)),
-                )
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: new FittedBox(
+                      fit: BoxFit.fill,
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: new Icon(widget.icon),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      widget.display,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -55,9 +70,13 @@ class _PoolCardState extends State<PoolCard> {
   }
 
   void sendState() async {
-    // var uri = Uri.http("localhost:5002", "/api/aqualogic/setstate");
-    // final result = await http.post(uri,
-    //     body: { 'state': pow(2, state.index) } //2^i since we do not have bitflag enums in dart
-    // );
+    ApiBaseHelper.post(ApiConstants.setStateEndpoint, { 'state': pow(2, widget.state.index - 1) });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            "Turning ${widget.display} ${widget.isEnabled ? "Off" : "On"}"),
+      ),
+    );
   }
 }

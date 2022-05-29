@@ -21,14 +21,14 @@ class PoolControls extends StatefulWidget {
 }
 
 class _PoolControlsState extends State<PoolControls> {
-
   bool isActive(PoolState state) {
     var poolState = context.watch<AquaLogicProvider>().aquaLogic.poolStates;
     return checkState(poolState ?? 0, state);
   }
 
   bool isFlashing(PoolState state) {
-    var flashingState = context.watch<AquaLogicProvider>().aquaLogic.flashingStates;
+    var flashingState =
+        context.watch<AquaLogicProvider>().aquaLogic.flashingStates;
     return checkState(flashingState ?? 0, state);
   }
 
@@ -46,12 +46,19 @@ class _PoolControlsState extends State<PoolControls> {
     return Container(
       child: Column(
         children: [
-          Padding(padding: EdgeInsets.only(top: 8.0)),
+          Padding(
+            padding: EdgeInsets.only(top: 8.0),
+          ),
           createHeader("Temperatures"),
-          temperatureWidgets(context),
+          Flexible(
+            flex: 1,
+            child: temperatureWidgets(context),
+          ),
           ...headerAndDivider("Controls"),
-          controlWidgets(context),
-          otherWidgets(context)
+          Flexible(
+            flex: 3,
+            child: controlWidgets(context),
+          )
         ],
       ),
     );
@@ -60,81 +67,74 @@ class _PoolControlsState extends State<PoolControls> {
   Widget temperatureWidgets(BuildContext context) {
     var isMetric = context.watch<AquaLogicProvider>().aquaLogic.isMetric;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TemperatureCard(
-              display: "Air",
-              temp: context.watch<AquaLogicProvider>().aquaLogic.airTemp,
-              isMetric: isMetric ?? false),
-          TemperatureCard(
-              display: "Pool",
-              temp: context.watch<AquaLogicProvider>().aquaLogic.poolTemp,
-              isMetric: isMetric ?? false),
-          TemperatureCard(
-              display: "Spa",
-              temp: context.watch<AquaLogicProvider>().aquaLogic.spaTemp,
-              isMetric: isMetric ?? false),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Table(
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        columnWidths: const <int, TableColumnWidth>{
+          0: FlexColumnWidth(1),
+          1: FlexColumnWidth(1),
+          2: FlexColumnWidth(1)
+        },
+        children: <TableRow>[
+          TableRow(
+            children: <Widget>[
+              TemperatureCard(
+                  display: "Air",
+                  temp: context.watch<AquaLogicProvider>().aquaLogic.airTemp,
+                  isMetric: isMetric ?? false),
+              TemperatureCard(
+                  display: "Pool",
+                  temp: context.watch<AquaLogicProvider>().aquaLogic.poolTemp,
+                  isMetric: isMetric ?? false),
+              TemperatureCard(
+                  display: "Spa",
+                  temp: context.watch<AquaLogicProvider>().aquaLogic.spaTemp,
+                  isMetric: isMetric ?? false),
+            ],
+          ),
         ],
       ),
     );
   }
 
   Widget controlWidgets(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          PoolCard(
-            display: "Pool",
-            icon: Icons.pool,
-            state: PoolState.POOL,
-            isEnabled: isActive(PoolState.POOL),
-          ),
-          PoolCard(
-            display: "Spa",
-            icon: Icons.hot_tub,
-            state: PoolState.SPA,
-            isEnabled: isActive(PoolState.SPA),
-          ),
-          FilterCard(
-            display: "Filter",
-            icon: FontAwesomeIcons.fan,
-            isEnabled: isActive(PoolState.FILTER),
-            isFlashing: isActive(PoolState.FILTER_LOW_SPEED),
-          )
-          // PoolCard(
-          //     display: "Filter",
-          //     icon: FontAwesomeIcons.fan,
-          //     state,
-          //     isEnabled: isActive(PoolState.FILTER),
-          //     isFlashing: isFlashing(PoolState.FILTER_LOW_SPEED),
-          // )
-        ],
-      ),
-    );
-  }
-
-  Widget otherWidgets(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          PoolCard(
-              display: "Lights",
-              icon: Icons.light_mode_outlined,
-              state: PoolState.LIGHTS,
-              isEnabled: isActive(PoolState.LIGHTS)),
-          PoolCard(
-              display: "Waterfall",
-              icon: Waterfall.waterfall,
-              state: PoolState.AUX_2,
-              isEnabled: isActive(PoolState.AUX_2))
-        ],
-      ),
+    return GridView.count(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+      crossAxisSpacing: 20,
+      mainAxisSpacing: 20,
+      crossAxisCount: 2,
+      children: <Widget>[
+        PoolCard(
+          display: "Pool",
+          icon: Icons.pool,
+          state: PoolState.POOL,
+          isEnabled: isActive(PoolState.POOL),
+        ),
+        PoolCard(
+          display: "Spa",
+          icon: Icons.hot_tub,
+          state: PoolState.SPA,
+          isEnabled: isActive(PoolState.SPA),
+        ),
+        FilterCard(
+          display: "Filter",
+          icon: FontAwesomeIcons.fan,
+          isEnabled: isActive(PoolState.FILTER),
+          isFlashing: isFlashing(PoolState.FILTER),
+        ),
+        PoolCard(
+          display: "Lights",
+          icon: Icons.light_mode_outlined,
+          state: PoolState.LIGHTS,
+          isEnabled: isActive(PoolState.LIGHTS),
+        ),
+        PoolCard(
+          display: "Waterfall",
+          icon: Waterfall.waterfall,
+          state: PoolState.AUX_2,
+          isEnabled: isActive(PoolState.AUX_2),
+        )
+      ],
     );
   }
 

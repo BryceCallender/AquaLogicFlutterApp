@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:aqua_logic_controller/Models/aqualogic_provider.dart';
+import 'package:aqua_logic_controller/Models/display.dart';
+import 'package:aqua_logic_controller/UI/blinking-text.dart';
+import 'package:aqua_logic_controller/helpers/ApiBaseHelper.dart';
+import 'package:aqua_logic_controller/helpers/api-constants.dart';
 import 'package:flutter/material.dart';
 import 'package:aqua_logic_controller/Models/key.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +20,7 @@ class Emulator extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            flex: 3,
+            flex: 5,
             child: Container(
               margin: const EdgeInsets.all(15.0),
               padding: const EdgeInsets.all(3.0),
@@ -35,7 +39,7 @@ class Emulator extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Padding(
               padding: const EdgeInsets.only(top: 16.0),
               child: Container(
@@ -81,33 +85,66 @@ class Emulator extends StatelessWidget {
       ),
       style: ElevatedButton.styleFrom(
           minimumSize: Size(100, 50) // put the width and height you want
-          ),
+      ),
     );
   }
 
   List<Widget> controllerText(BuildContext context) {
     var display = context.watch<AquaLogicProvider>().aquaLogic.display;
-    var formattedDisplay = display?.displaySections ?? <String>['Display Error'];
+    var formattedDisplay = display?.displaySections ?? [DisplaySection()];
 
-    var textWidgets = <Widget>[];
+    List<Widget> textWidgets = [];
+    List<Widget> linesOfText = [];
 
+    var currentRow = 1;
     for (var section in formattedDisplay) {
-      textWidgets.add(
-        RichText(
-          text: TextSpan(
-            text: '',
-            style:
-                TextStyle(fontSize: 42 - (12 * textWidgets.length).toDouble()),
+      if (section.displayRow != currentRow) {
+        textWidgets.add(
+          Row(
+            children: linesOfText,
+            mainAxisAlignment: MainAxisAlignment.center,
           ),
-        ),
-      );
+        );
+        linesOfText = [];
+        currentRow = section.displayRow ?? ++currentRow;
+      }
+
+      var content = section.content ?? '';
+      content = content.replaceAll('_', '°');
+
+      var textStyle =
+          TextStyle(fontSize: 42 - (12 * textWidgets.length).toDouble());
+
+      if (section.blinking ?? false) {
+        linesOfText.add(
+          BlinkingText(
+            content: content,
+            style: textStyle,
+          ),
+        );
+      } else {
+        linesOfText.add(
+          Text(
+            content,
+            style: textStyle,
+          ),
+        );
+      }
+
+      linesOfText.add(SizedBox(width: 8,));
     }
+
+    textWidgets.add(
+      Row(
+        children: linesOfText,
+        mainAxisAlignment: MainAxisAlignment.center,
+      ),
+    );
 
     return textWidgets;
   }
 
   Future emulatorButtonPressed(ControllerKeyEvent key) async {
-    var uri = Uri.http("localhost:5002", "/api/aqualogic/key");
-    await http.post(uri, body: jsonEncode({'key': pow(2, key.index - 1)}));
+    ApiBaseHelper.post(ApiConstants.sendKeyEndpoint, {'key': pow(2, key.index - 1)});
   }
 }

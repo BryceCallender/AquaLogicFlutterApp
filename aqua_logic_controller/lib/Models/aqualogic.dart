@@ -42,7 +42,7 @@ class AquaLogic {
 
   factory AquaLogic.fromJson(Map<String, dynamic> json) {
     return AquaLogic(
-      display: json['display'],
+      display: Display.fromJson(json['display']),
       poolStates : json['poolStates'],
       flashingStates : json['flashingStates'],
       isMetric : json['isMetric'],

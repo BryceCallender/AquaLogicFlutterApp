@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:aqua_logic_controller/Models/aqualogic_provider.dart';
 import 'package:aqua_logic_controller/UI/connect-page.dart';
 import 'package:aqua_logic_controller/UI/pool-controls.dart';
+import 'package:aqua_logic_controller/UI/pool-dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   List<SingleChildWidget> providers = [
@@ -20,20 +25,25 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AquaLogic Controller',
+      title: "AquaLogic Controller",
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(
-                  primarySwatch: Colors.blue, brightness: Brightness.dark)
-              .copyWith(secondary: Colors.greenAccent),
-          appBarTheme: const AppBarTheme(backgroundColor: Colors.blue),
-          splashColor: Colors.blue),
+        colorScheme: ColorScheme.fromSwatch(brightness: Brightness.dark)
+            .copyWith(
+                primary: Color(0xFF2845f9), secondary: Colors.greenAccent),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF2845f9),
+        ),
+        splashColor: Color(0xFF2845f9),
+        snackBarTheme: SnackBarThemeData(
+            backgroundColor: Color(0xFF2845f9),
+            contentTextStyle: TextStyle(color: Colors.white)),
+      ),
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(title: 'AquaLogic Controller'),
+      home: MyHomePage(title: "AquaLogic Controller"),
     );
   }
 }
@@ -48,12 +58,43 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late bool skipConnect = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedPrefs();
+  }
+
+  Future<Null> getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    var host = prefs.getString("host") ?? "";
+    var port = prefs.getString("port") ?? "";
+
+    print(host);
+    print(port);
+
+    setState(() {
+      skipConnect = host.isNotEmpty && port.isNotEmpty;
+      if (skipConnect) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PoolDashboard(),
+          ),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: ConnectPage());
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: ConnectPage(),
+    );
   }
 }
