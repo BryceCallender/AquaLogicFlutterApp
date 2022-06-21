@@ -1,16 +1,13 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
-import 'package:aqua_logic_controller/Models/aqualogic.dart';
 import 'package:aqua_logic_controller/Models/aqualogic_provider.dart';
-import 'package:aqua_logic_controller/UI/error-page.dart';
 import 'package:aqua_logic_controller/UI/pool-card.dart';
 import 'package:aqua_logic_controller/Models/states.dart';
+import 'package:aqua_logic_controller/UI/service-mode.dart';
 import 'package:aqua_logic_controller/UI/temperature-card.dart';
+import 'package:aqua_logic_controller/helpers/StateHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import '../CustomIcons/waterfall_icons.dart';
 import 'filter-card.dart';
@@ -22,13 +19,14 @@ class PoolControls extends StatefulWidget {
 
 class _PoolControlsState extends State<PoolControls> {
   bool isActive(PoolState state) {
-    var poolState = context.watch<AquaLogicProvider>().aquaLogic.poolStates;
+    var poolState = context
+        .select((AquaLogicProvider provider) => provider.aquaLogic.poolStates);
     return checkState(poolState ?? 0, state);
   }
 
   bool isFlashing(PoolState state) {
-    var flashingState =
-        context.watch<AquaLogicProvider>().aquaLogic.flashingStates;
+    var flashingState = context.select(
+        (AquaLogicProvider provider) => provider.aquaLogic.flashingStates);
     return checkState(flashingState ?? 0, state);
   }
 
@@ -43,6 +41,8 @@ class _PoolControlsState extends State<PoolControls> {
 
   @override
   Widget build(BuildContext context) {
+    checkServiceMode();
+
     return Container(
       child: Column(
         children: [
@@ -65,7 +65,8 @@ class _PoolControlsState extends State<PoolControls> {
   }
 
   Widget temperatureWidgets(BuildContext context) {
-    var isMetric = context.watch<AquaLogicProvider>().aquaLogic.isMetric;
+    var isMetric = context
+        .select((AquaLogicProvider provider) => provider.aquaLogic.isMetric);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Table(
@@ -80,15 +81,18 @@ class _PoolControlsState extends State<PoolControls> {
             children: <Widget>[
               TemperatureCard(
                   display: "Air",
-                  temp: context.watch<AquaLogicProvider>().aquaLogic.airTemp,
+                  temp: context.select((AquaLogicProvider provider) =>
+                      provider.aquaLogic.airTemp),
                   isMetric: isMetric ?? false),
               TemperatureCard(
                   display: "Pool",
-                  temp: context.watch<AquaLogicProvider>().aquaLogic.poolTemp,
+                  temp: context.select((AquaLogicProvider provider) =>
+                      provider.aquaLogic.poolTemp),
                   isMetric: isMetric ?? false),
               TemperatureCard(
                   display: "Spa",
-                  temp: context.watch<AquaLogicProvider>().aquaLogic.spaTemp,
+                  temp: context.select((AquaLogicProvider provider) =>
+                      provider.aquaLogic.spaTemp),
                   isMetric: isMetric ?? false),
             ],
           ),
@@ -150,5 +154,13 @@ class _PoolControlsState extends State<PoolControls> {
 
   List<Widget> headerAndDivider(String header) {
     return [Divider(thickness: 3), createHeader(header)];
+  }
+
+  void checkServiceMode() {
+    if (StateHelper.checkServiceMode(context)) {
+      context.loaderOverlay.show(
+          widget: ServiceMode()
+      );
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:aqua_logic_controller/Models/aqualogic.dart';
+import 'package:aqua_logic_controller/Models/states.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:signalr_netcore/signalr_client.dart';
@@ -12,11 +14,14 @@ class AquaLogicProvider extends ChangeNotifier {
 
   late String _serverUrl;
   late HubConnection _hubConnection;
+  late bool _connected = false;
 
   AquaLogic get aquaLogic => _aquaLogic;
+  bool get connected => _connected;
+  bool get disabled => checkState(PoolState.SERVICE);
 
   Future<void> subscribe() async {
-    _serverUrl = ApiConstants.aquaHubUrl + ApiConstants.aqualogicHubEndpoint;
+    _serverUrl = ApiConstants.baseUrl + ApiConstants.aqualogicHubEndpoint;
     print(_serverUrl);
 
     final httpConnectionOptions = new HttpConnectionOptions(
@@ -28,23 +33,49 @@ class AquaLogicProvider extends ChangeNotifier {
         .withAutomaticReconnect(
             retryDelays: [2000, 5000, 10000, 20000]).build();
 
-    _hubConnection.onclose(({error}) => print("Connection Closed"));
+
     _hubConnection.on("UpdateDisplay", _handleUpdateDisplay);
-    _hubConnection.onreconnecting(({error}) => print("Reconnecting..."));
-    _hubConnection.onreconnected(({connectionId}) => print("Reconnected."));
+
+    // Event Listeners
+    _hubConnection.onclose(({error}) {
+      _connected = false;
+      print("Connection Closed");
+      notifyListeners();
+    });
+
+    _hubConnection.onreconnecting(({error}) {
+      _connected = false;
+      print("Reconnecting...");
+      notifyListeners();
+    });
+
+    _hubConnection.onreconnected(({connectionId}) {
+      _connected = true;
+      print("Reconnected.");
+      notifyListeners();
+    }
+  );
 
     if (_hubConnection.state != HubConnectionState.Connected) {
-      var connected = false;
-      while (!connected) {
+      int maxAttempts = 10;
+      int attempts = 0;
+      while (!_connected && attempts < maxAttempts) {
         try {
+          ++attempts;
           await _hubConnection.start();
-          connected = true;
+          _connected = true;
+          print('connected');
+          notifyListeners();
         } catch(e) {
-          print(e);
+          
         }
       }
-      print('connected');
     }
+  }
+
+  bool checkState(PoolState poolState) {
+    var stateValue = pow(2, poolState.index - 1) as int;
+    return ((_aquaLogic.poolStates ?? 0) & stateValue) == stateValue;
   }
 
   void _handleUpdateDisplay(List<Object>? args) {

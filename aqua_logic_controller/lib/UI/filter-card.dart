@@ -5,6 +5,7 @@ import 'package:aqua_logic_controller/UI/spinning-icon.dart';
 import 'package:aqua_logic_controller/helpers/ApiBaseHelper.dart';
 import 'package:aqua_logic_controller/helpers/api-constants.dart';
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class FilterCard extends StatefulWidget {
   final String display;
@@ -87,14 +88,16 @@ class _FilterCardState extends State<FilterCard> {
       filterDisplayText = "Turning Filter High Speed";
     }
 
-    ApiBaseHelper.post(ApiConstants.setStateEndpoint, { 'state': pow(2, PoolState.FILTER.index - 1) });
+    ApiBaseHelper.put(ApiConstants.setStateEndpoint, { 'state': pow(2, PoolState.FILTER.index - 1) });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text(filterDisplayText),
-      ),
-    );
+    context.loaderOverlay.show();
+
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content:
+    //         Text(filterDisplayText),
+    //   ),
+    // );
   }
 
   bool isFilterOn() {

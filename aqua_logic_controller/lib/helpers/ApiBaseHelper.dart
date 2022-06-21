@@ -5,9 +5,10 @@ import 'dart:async';
 
 class ApiBaseHelper {
 
-  static Future<dynamic> get(String endpoint) async {
+  static Future<dynamic> get(String endpoint, [Map<String, String>? parameters]) async {
     try {
-      var url = Uri.parse(ApiConstants.baseUrl + endpoint);
+      var url = Uri.parse(ApiConstants.baseUrl + endpoint).replace(queryParameters: parameters);
+      print(url);
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -18,16 +19,16 @@ class ApiBaseHelper {
     }
   }
 
-  static Future<dynamic> post(String endpoint, dynamic body) async {
+  static Future<dynamic> put(String endpoint, dynamic body) async {
     try {
       var url = Uri.parse(ApiConstants.baseUrl + endpoint);
-      var response = await http.post(url, body: body);
+      var response = await http.put(url, body: jsonEncode(body));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
     } catch (e) {
-        print(e);
+      print(e);
     }
   }
 }

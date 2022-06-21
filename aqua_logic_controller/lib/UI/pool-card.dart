@@ -1,9 +1,9 @@
 import 'package:aqua_logic_controller/Models/states.dart';
-import 'package:aqua_logic_controller/UI/spinning-icon.dart';
 import 'package:aqua_logic_controller/helpers/ApiBaseHelper.dart';
 import 'package:aqua_logic_controller/helpers/api-constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:loader_overlay/loader_overlay.dart';
 import 'dart:math';
 
 class PoolCard extends StatefulWidget {
@@ -35,7 +35,7 @@ class _PoolCardState extends State<PoolCard> {
     return Container(
       child: Card(
         color:
-            widget.isEnabled ? Color(0xFF2845f9) : Theme.of(context).cardColor,
+            widget.isEnabled ? Theme.of(context).colorScheme.primary : Theme.of(context).cardColor,
         child: InkWell(
           onTap: () => sendState(),
           child: Container(
@@ -70,13 +70,15 @@ class _PoolCardState extends State<PoolCard> {
   }
 
   void sendState() async {
-    ApiBaseHelper.post(ApiConstants.setStateEndpoint, { 'state': pow(2, widget.state.index - 1) });
+    ApiBaseHelper.put(ApiConstants.setStateEndpoint, { 'state': pow(2, widget.state.index - 1) });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            "Turning ${widget.display} ${widget.isEnabled ? "Off" : "On"}"),
-      ),
-    );
+    context.loaderOverlay.show();
+
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text(
+    //         "Turning ${widget.display} ${widget.isEnabled ? "Off" : "On"}"),
+    //   ),
+    // );
   }
 }

@@ -1,10 +1,7 @@
 import 'dart:io';
 
-import 'package:aqua_logic_controller/Models/aqualogic_provider.dart';
 import 'package:aqua_logic_controller/UI/pool-dashboard.dart';
 import 'package:flutter/material.dart';
-import 'package:http/io_client.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConnectPage extends StatefulWidget {

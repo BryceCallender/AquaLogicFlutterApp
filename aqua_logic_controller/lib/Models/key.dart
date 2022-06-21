@@ -1,5 +1,4 @@
-enum ControllerKeyEvent
-{
+enum ControllerKeyEvent {
   NONE,
   RIGHT,
   MENU,
